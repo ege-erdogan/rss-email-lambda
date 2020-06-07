@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/smtp"
@@ -30,14 +29,10 @@ func main() {
 
 	htmlChannel := make(chan string)
 
-	for i, url := range urls {
-		fmt.Printf("[%d] [%s]\n", i, url)
-	}
-
 	for _, url := range urls {
-		go func(url string) {
-			htmlChannel <- fetch(url, dateThreshold)
-		}(url)
+		if len(url) > 5 { //FIXME: temporary fix (should perform stronger validity check, preferably not here)
+			go fetch(url, dateThreshold, htmlChannel)
+		}
 	}
 
 	for i := 0; i < len(urls); i++ {
@@ -49,10 +44,9 @@ func main() {
 	send(os.Getenv("RSS_TARGET"), msg)
 }
 
-func fetch(url string, threshold time.Time) string {
+func fetch(url string, threshold time.Time, out chan string) {
 	posts := make(map[string]string)
 
-	fmt.Println(url)
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL(url)
 	check(err)
@@ -65,7 +59,7 @@ func fetch(url string, threshold time.Time) string {
 		}
 	}
 
-	return GenerateHTMLFeedBlock(feed.Title, posts)
+	out <- GenerateHTMLFeedBlock(feed.Title, posts)
 }
 
 func send(to, body string) {
