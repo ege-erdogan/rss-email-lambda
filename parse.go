@@ -19,24 +19,43 @@ func main() {
 
 	dateThreshold := time.Now().AddDate(0, 0, -days)
 
-	fp := gofeed.NewParser()
 	msg := "RSS FEEDS \n"
+	lines := 0
 
 	start := time.Now()
 
+	receive := make(chan string)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		feed, _ := fp.ParseURL(scanner.Text())
-		msg += "\n" + feed.Title + "\n"
-		for i := 0; i < len(feed.Items); i++ {
-			if feed.Items[i].PublishedParsed.After(dateThreshold) {
-				msg += "\t" + feed.Items[i].Published + "  -  " + feed.Items[i].Title + "\n"
-			}
-		}
+		url := scanner.Text()
+		lines++
+		go fetch(url, dateThreshold, receive)
+	}
+
+	for i := 0; i < lines; i++ {
+		msg += <-receive
 	}
 
 	fmt.Println(time.Since(start).Seconds())
+	fmt.Println(msg)
 	// send("ege@erdogan.dev", msg)
+}
+
+func fetch(url string, threshold time.Time, out chan string) {
+	msg := ""
+
+	fp := gofeed.NewParser()
+	feed, err := fp.ParseURL(url)
+	check(err)
+
+	msg += "\n" + feed.Title + "\n"
+	for i := 0; i < len(feed.Items); i++ {
+		if feed.Items[i].PublishedParsed.After(threshold) {
+			msg += "\t" + feed.Items[i].Published + "  -  " + feed.Items[i].Title + "\n"
+		}
+	}
+
+	out <- msg
 }
 
 func send(to, body string) {
