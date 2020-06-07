@@ -24,24 +24,26 @@ func main() {
 
 	start := time.Now()
 
-	receive := make(chan string)
+	channel := make(chan string)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		url := scanner.Text()
 		lines++
-		go fetch(url, dateThreshold, receive)
+		go func(url string) {
+			channel <- fetch(url, dateThreshold)
+		}(url)
 	}
 
 	for i := 0; i < lines; i++ {
-		msg += <-receive
+		msg += <-channel
 	}
 
 	fmt.Println(time.Since(start).Seconds())
 	fmt.Println(msg)
-	// send("ege@erdogan.dev", msg)
+	send("ege@erdogan.dev", msg)
 }
 
-func fetch(url string, threshold time.Time, out chan string) {
+func fetch(url string, threshold time.Time) string {
 	msg := ""
 
 	fp := gofeed.NewParser()
@@ -51,11 +53,11 @@ func fetch(url string, threshold time.Time, out chan string) {
 	msg += "\n" + feed.Title + "\n"
 	for i := 0; i < len(feed.Items); i++ {
 		if feed.Items[i].PublishedParsed.After(threshold) {
-			msg += "\t" + feed.Items[i].Published + "  -  " + feed.Items[i].Title + "\n"
+			msg += "\t" + feed.Items[i].PublishedParsed.Format("Jan 2") + " - " +
+				"<a href=\"" + feed.Items[i].Link + "\">" + feed.Items[i].Title + "</a>\n"
 		}
 	}
-
-	out <- msg
+	return msg
 }
 
 func send(to, body string) {

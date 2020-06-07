@@ -1,3 +1,6 @@
 https://www.scottaaronson.com/blog/?feed=rss2
 https://www.schneier.com/blog/atom.xml
 https://slatestarcodex.com/feed/
+https://blog.computationalcomplexity.org/feeds/posts/default
+https://gowers.wordpress.com/feed/
+https://www.ribbonfarm.com/feed/
