@@ -1,52 +1,58 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"net/smtp"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/mmcdole/gofeed"
 )
 
 const days = 7
+const feedsURL = "https://raw.githubusercontent.com/ege-erdogan/rss-email/master/feeds.txt"
 
 func main() {
-	file, err := os.Open("feeds.txt")
-	check(err)
-	defer file.Close()
-
 	dateThreshold := time.Now().AddDate(0, 0, -days)
-
 	msg := "<html><h1>RSS FEEDS</h1> \n"
-	lines := 0
 
-	start := time.Now()
+	resp, err := http.Get(feedsURL)
+	check(err)
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	check(err)
+
+	urls := strings.Split(string(data), "\n")
 
 	htmlChannel := make(chan string)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		url := scanner.Text()
-		lines++
+
+	for i, url := range urls {
+		fmt.Printf("[%d] [%s]\n", i, url)
+	}
+
+	for _, url := range urls {
 		go func(url string) {
 			htmlChannel <- fetch(url, dateThreshold)
 		}(url)
 	}
 
-	for i := 0; i < lines; i++ {
+	for i := 0; i < len(urls); i++ {
+		// FIXME: blocks if a fetch call errs
 		msg += <-htmlChannel
 	}
 
 	msg += "</html>\n\n"
-	fmt.Println(time.Since(start).Seconds())
-	fmt.Println(msg)
-	send("ege@erdogan.dev", msg)
+	send(os.Getenv("RSS_TARGET"), msg)
 }
 
 func fetch(url string, threshold time.Time) string {
 	posts := make(map[string]string)
 
+	fmt.Println(url)
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL(url)
 	check(err)
