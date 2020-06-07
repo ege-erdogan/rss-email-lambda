@@ -38,10 +38,10 @@ func main() {
 		msg += <-htmlChannel
 	}
 
-	msg += "</html>"
+	msg += "</html>\n\n"
 	fmt.Println(time.Since(start).Seconds())
 	fmt.Println(msg)
-	// send("ege@erdogan.dev", msg)
+	send("ege@erdogan.dev", msg)
 }
 
 func fetch(url string, threshold time.Time) string {
@@ -64,19 +64,19 @@ func fetch(url string, threshold time.Time) string {
 
 func send(to, body string) {
 	from := os.Getenv("GMAIL_NAME")
-	password := os.Getenv("GMAIL_password")
+	password := os.Getenv("GMAIL_PASS")
 
-	msg := "From: " + from + "\n" +
-		"To: " + to + "\n" +
-		"Subject: RSS Feeds\n\n" +
-		body
+	msg := "From: " + from + "\n"
+	msg += "To: " + to + "\n"
+	msg += "Content-Type: text/html\n"
+	msg += "Subject: RSS FEEDS\n\n"
+	msg += body
 
 	err := smtp.SendMail("smtp.gmail.com:587",
 		smtp.PlainAuth("", from, password, "smtp.gmail.com"),
 		from, []string{to}, []byte(msg))
 	check(err)
 
-	fmt.Printf("Sent mail to %s\n", to)
 }
 
 func check(e error) {
