@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
-
 	"github.com/mmcdole/gofeed"
 )
 
@@ -70,8 +69,9 @@ func fetch(url string, threshold time.Time, out chan string) {
 }
 
 func send(to, body string) {
-	from := os.Getenv("GMAIL_NAME")
-	password := os.Getenv("GMAIL_PASS")
+	username := os.Getenv("EMAIL_NAME")
+	password := os.Getenv("EMAIL_PASS")
+	from := os.Getenv("EMAIL_FROM")
 
 	msg := "From: " + from + "\n"
 	msg += "To: " + to + "\n"
@@ -79,11 +79,11 @@ func send(to, body string) {
 	msg += "Subject: RSS FEEDS\n\n"
 	msg += body
 
-	err := smtp.SendMail("smtp.gmail.com:587",
-		smtp.PlainAuth("", from, password, "smtp.gmail.com"),
+	// email-smtp.us-east-1.amazonaws.com
+	err := smtp.SendMail("email-smtp.us-east-1.amazonaws.com:587",
+		smtp.PlainAuth("", username, password, "email-smtp.us-east-1.amazonaws.com"),
 		from, []string{to}, []byte(msg))
 	check(err)
-
 }
 
 func check(e error) {
