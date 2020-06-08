@@ -7,7 +7,7 @@
 
   {{range .Posts}}
     <li style="margin: 0.5em"> 
-      [{{.DateString}}] <a href="{{.Link}}" style="text-decoration: none;">{{.Title}}</a> - <em>{{.Author}}</em>
+      [{{.DateString}}] <a href="{{.Link}}" style="text-decoration: underline; color: black"><strong>{{.Title}}</strong></a> - <em style="color: #444444">{{.Author}}</em>
     </li>
   {{else}}
     No updates for now.

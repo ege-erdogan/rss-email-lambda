@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/smtp"
@@ -51,8 +52,8 @@ func HandleRequest() {
 		message = GenerateMessage(blocks)
 	}
 
-	// fmt.Println(message)
-	send(os.Getenv("RSS_TARGET"), message)
+	fmt.Println(message)
+	// send(os.Getenv("RSS_TARGET"), message)
 }
 
 func fetch(url string, threshold time.Time, out chan string) {
