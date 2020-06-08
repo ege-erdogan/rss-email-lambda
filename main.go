@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/smtp"
@@ -52,8 +51,8 @@ func HandleRequest() {
 		message = GenerateMessage(blocks)
 	}
 
-	fmt.Println(message)
-	// send(os.Getenv("RSS_TARGET"), msg)
+	// fmt.Println(message)
+	send(os.Getenv("RSS_TARGET"), message)
 }
 
 func fetch(url string, threshold time.Time, out chan string) {
@@ -68,7 +67,8 @@ func fetch(url string, threshold time.Time, out chan string) {
 		if data.Items[i].PublishedParsed.After(threshold) {
 			post := Post{Title: data.Items[i].Title,
 				Link:       data.Items[i].Link,
-				DateString: data.Items[i].PublishedParsed.Format("Jan 2")}
+				DateString: data.Items[i].PublishedParsed.Format("Jan 2"),
+				Author:     data.Items[i].Author.Name}
 			feed.Posts = append(feed.Posts, post)
 		}
 	}

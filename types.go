@@ -12,5 +12,7 @@ type Feed struct {
 type Post struct {
 	Title      string
 	Link       string
+	Author     string
+	Categories []string
 	DateString string
 }
