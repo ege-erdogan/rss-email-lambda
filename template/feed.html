@@ -1,0 +1,15 @@
+<a href="{{.Link}}">
+  <h3>
+    {{.Title}}
+  </h3>
+</a>
+
+<ul>
+  {{range .Posts}}
+    <li> 
+      [{{.DateString}}] <a href="{{.Link}}">{{.Title}}</a> 
+    </li>
+  {{else}}
+    No updates for now.
+  {{end}}
+</ul>
