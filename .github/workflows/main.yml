@@ -17,7 +17,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Build binary
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main && zip lambda.zip main
+          go get github.com/aws/aws-lambda-go/lambda && go get github.com/mmcdole/gofeed && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main && zip lambda.zip main
       - name: default deploy
         uses: appleboy/lambda-action@master
         with:
