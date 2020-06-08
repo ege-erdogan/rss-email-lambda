@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
+
 	"github.com/mmcdole/gofeed"
 )
 
@@ -15,6 +17,10 @@ const days = 7
 const feedsURL = "https://raw.githubusercontent.com/ege-erdogan/rss-email/master/feeds.txt"
 
 func main() {
+	lambda.Start(HandleRequest)
+}
+
+func HandleRequest() {
 	dateThreshold := time.Now().AddDate(0, 0, -days)
 	msg := "<html><h1>RSS FEEDS</h1> \n"
 
