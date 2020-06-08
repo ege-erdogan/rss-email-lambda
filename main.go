@@ -20,6 +20,7 @@ func main() {
 	lambda.Start(HandleRequest)
 }
 
+// HandleRequest called to handle AWS lambda request
 func HandleRequest() {
 	dateThreshold := time.Now().AddDate(0, 0, -days)
 	msg := "<html><h1>RSS FEEDS</h1> \n"
