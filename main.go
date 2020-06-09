@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/smtp"
@@ -9,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -16,8 +16,7 @@ const days = 7
 const feedsURL = "https://raw.githubusercontent.com/ege-erdogan/rss-email/master/feeds.txt"
 
 func main() {
-	// lambda.Start(HandleRequest)
-	HandleRequest()
+	lambda.Start(HandleRequest)
 }
 
 // HandleRequest called to handle AWS lambda request
@@ -52,8 +51,7 @@ func HandleRequest() {
 		message = GenerateMessage(blocks)
 	}
 
-	fmt.Println(message)
-	// send(os.Getenv("RSS_TARGET"), message)
+	send(os.Getenv("RSS_TARGET"), message)
 }
 
 func fetch(url string, threshold time.Time, out chan string) {
