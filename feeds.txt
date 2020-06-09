@@ -4,4 +4,3 @@ https://slatestarcodex.com/feed/
 https://blog.computationalcomplexity.org/feeds/posts/default
 https://gowers.wordpress.com/feed/
 https://www.ribbonfarm.com/feed/
-https://matt.might.net/articles/feed.rss
