@@ -21,8 +21,10 @@ func main() {
 
 // HandleRequest called to handle AWS lambda request
 func HandleRequest() {
+	var blocks []string
+	var message string
+
 	dateThreshold := time.Now().AddDate(0, 0, -days)
-	msg := "<html><h1>RSS FEEDS</h1> \n"
 
 	resp, err := http.Get(feedsURL)
 	check(err)
@@ -33,39 +35,44 @@ func HandleRequest() {
 
 	urls := strings.Split(string(data), "\n")
 
-	htmlChannel := make(chan string)
+	feedBlocks := make(chan string)
 
 	for _, url := range urls {
-		if len(url) > 5 { //FIXME: temporary fix (should perform stronger validity check, preferably not here)
-			go fetch(url, dateThreshold, htmlChannel)
+		if len(url) > 5 { //TODO: better validity check
+			go func(url string) {
+				fetch(url, dateThreshold, feedBlocks)
+			}(url)
 		}
 	}
 
-	for i := 0; i < len(urls); i++ {
-		// FIXME: blocks if a fetch call errs
-		msg += <-htmlChannel
+	for i := 0; i < len(urls); i++ { //TODO: better error handling than in fetch
+		feedBlock := <-feedBlocks
+		blocks = append(blocks, feedBlock)
+		message = GenerateMessage(blocks)
 	}
 
-	msg += "</html>\n\n"
-	send(os.Getenv("RSS_TARGET"), msg)
+	send(os.Getenv("RSS_TARGET"), message)
 }
 
 func fetch(url string, threshold time.Time, out chan string) {
-	posts := make(map[string]string)
+	data, err := gofeed.NewParser().ParseURL(url)
+	if err != nil {
+		out <- "An error occured."
+	}
 
-	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL(url)
-	check(err)
+	feed := Feed{Title: data.Title, Link: data.Link}
 
-	for i := 0; i < len(feed.Items); i++ {
-		if feed.Items[i].PublishedParsed.After(threshold) {
-			title := feed.Items[i].Title
-			link := feed.Items[i].Link
-			posts[title] = link
+	for i := 0; i < len(data.Items); i++ {
+		if data.Items[i].PublishedParsed.After(threshold) {
+			post := Post{Title: data.Items[i].Title,
+				Link:       data.Items[i].Link,
+				DateString: data.Items[i].PublishedParsed.Format("Jan 2"),
+				Author:     data.Items[i].Author.Name}
+			feed.Posts = append(feed.Posts, post)
 		}
 	}
 
-	out <- GenerateHTMLFeedBlock(feed.Title, posts)
+	out <- GenerateHTMLFeedBlock(feed)
 }
 
 func send(to, body string) {
