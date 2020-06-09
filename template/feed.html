@@ -1,13 +1,13 @@
 <ul style="border-style: solid; border-width: 1px; background-color: #f3e8cb; padding-bottom: 1em;">
-  <a href="{{.Link}}">
-    <h3>
+  <a href="{{.Link}}" style="color: black;">
+    <h3 style="text-decoration: none;">
       {{.Title}}
     </h3>
   </a>
 
   {{range .Posts}}
     <li style="margin: 0.5em"> 
-      [{{.DateString}}] <a href="{{.Link}}" style="text-decoration: underline; color: black"><strong>{{.Title}}</strong></a> - <em style="color: #444444">{{.Author}}</em>
+      [{{.DateString}}] <a href="{{.Link}}" style="text-decoration: none; color: darkblue"><strong>{{.Title}}</strong></a> - <em style="color: #444444">{{.Author}}</em>
     </li>
   {{else}}
     No updates for now.
