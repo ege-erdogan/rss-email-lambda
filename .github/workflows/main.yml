@@ -26,3 +26,4 @@ jobs:
           aws_region: ${{ secrets.AWS_REGION }}
           function_name: send-email
           zip_file: lambda.zip
+

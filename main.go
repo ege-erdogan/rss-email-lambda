@@ -1,14 +1,13 @@
 package main
 
 import (
-	"io/ioutil"
-	"net/http"
 	"net/smtp"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-lambda-go/lambda"
+	"./netutil"
+
 	"github.com/mmcdole/gofeed"
 )
 
@@ -16,7 +15,8 @@ const days = 7
 const feedsURL = "https://raw.githubusercontent.com/ege-erdogan/rss-email/master/feeds.txt"
 
 func main() {
-	lambda.Start(HandleRequest)
+	// lambda.Start(HandleRequest)
+	HandleRequest()
 }
 
 // HandleRequest called to handle AWS lambda request
@@ -26,14 +26,8 @@ func HandleRequest() {
 
 	dateThreshold := time.Now().AddDate(0, 0, -days)
 
-	resp, err := http.Get(feedsURL)
-	check(err)
-	defer resp.Body.Close()
-
-	data, err := ioutil.ReadAll(resp.Body)
-	check(err)
-
-	urls := strings.Split(string(data), "\n")
+	urlList := netutil.ReadFile(feedsURL)
+	urls := strings.Split(string(urlList), "\n")
 
 	feedBlocks := make(chan string)
 
@@ -86,15 +80,10 @@ func send(to, body string) {
 	msg += "Subject: RSS FEEDS\n\n"
 	msg += body
 
-	// email-smtp.us-east-1.amazonaws.com
 	err := smtp.SendMail("email-smtp.us-east-1.amazonaws.com:587",
 		smtp.PlainAuth("", username, password, "email-smtp.us-east-1.amazonaws.com"),
 		from, []string{to}, []byte(msg))
-	check(err)
-}
-
-func check(e error) {
-	if e != nil {
-		panic(e)
+	if err != nil {
+		panic(err)
 	}
 }
