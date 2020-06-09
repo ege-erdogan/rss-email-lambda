@@ -8,6 +8,7 @@ import (
 
 	"./netutil"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -15,8 +16,8 @@ const days = 7
 const feedsURL = "https://raw.githubusercontent.com/ege-erdogan/rss-email/master/feeds.txt"
 
 func main() {
-	// lambda.Start(HandleRequest)
-	HandleRequest()
+	lambda.Start(HandleRequest)
+	// HandleRequest()
 }
 
 // HandleRequest called to handle AWS lambda request
