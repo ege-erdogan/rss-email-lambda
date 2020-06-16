@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/smtp"
 	"os"
 	"strings"
@@ -13,7 +14,8 @@ import (
 )
 
 const days = 7
-const feedsURL = "https://raw.githubusercontent.com/ege-erdogan/rss-email/master/feeds.txt"
+
+var feedsURL = os.Getenv("FEEDS_SOURCE")
 
 func main() {
 	lambda.Start(HandleRequest)
@@ -59,6 +61,7 @@ func fetch(url string, threshold time.Time, out chan string) {
 
 	for i := 0; i < len(data.Items); i++ {
 		if data.Items[i].PublishedParsed.After(threshold) {
+			fmt.Printf("%s\t%s\n", url, data.Items[i].Author)
 			post := Post{Title: data.Items[i].Title,
 				Link:       data.Items[i].Link,
 				DateString: data.Items[i].PublishedParsed.Format("Jan 2"),
