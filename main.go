@@ -19,7 +19,6 @@ var feedsURL = os.Getenv("FEEDS_SOURCE")
 
 func main() {
 	lambda.Start(HandleRequest)
-	// HandleRequest()
 }
 
 // HandleRequest called to handle AWS lambda request
@@ -31,6 +30,7 @@ func HandleRequest() {
 
 	urlList := netutil.ReadFile(feedsURL)
 	urls := strings.Split(string(urlList), "\n")
+	urls = urls[0 : len(urls)-1] // TODO:
 
 	feedBlocks := make(chan string)
 
